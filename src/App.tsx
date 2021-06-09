@@ -72,11 +72,11 @@ function App() {
     return icp_logo;
   };
 
-  const getValueInUSD = (balance: number, symbol: string) => {
-    if (symbol === 'ICP') return balance * 80;
-    if (symbol === 'DOT') return balance * 20;
-    if (symbol === 'KSM') return balance * 120;
-    return icp_logo;
+  const getValueInUSD = (balance: number, decimals: number, symbol: string) => {
+    if (symbol === 'ICP') return (balance / Math.pow(10, decimals)) * 80;
+    if (symbol === 'DOT') return (balance / Math.pow(10, decimals)) * 20;
+    if (symbol === 'KSM') return (balance / Math.pow(10, decimals)) * 120;
+    return balance / Math.pow(10, decimals);
   };
 
   return (
@@ -129,7 +129,8 @@ function App() {
               src={getWalletLogo(walletBalance?.balances[0]?.currency?.symbol)}
             />
             <div className="wallet-balance">
-              {walletBalance?.balances[0]?.value +
+              {walletBalance?.balances[0]?.value /
+                Math.pow(10, walletBalance?.balances[0]?.currency?.decimals) +
                 ' ' +
                 walletBalance?.balances[0]?.currency?.symbol}
             </div>
@@ -137,6 +138,7 @@ function App() {
               {'$' +
                 getValueInUSD(
                   walletBalance?.balances[0]?.value,
+                  walletBalance?.balances[0]?.currency?.decimals,
                   walletBalance?.balances[0]?.currency?.symbol
                 )}
             </div>
