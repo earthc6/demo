@@ -3,10 +3,14 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import { web3Accounts, web3Enable } from '@earthwallet/sdk';
 import { InjectedAccountWithMeta } from '@earthwallet/sdk/build/main/inject/types';
+import {
+  getTransactions,
+  getBalance,
+} from '@earthwallet/sdk/build/main/util/icp';
 import logo from './icon.png';
 import icp_logo from './icp-logo.png';
-// import dot_logo from './kusama-ksm-logo.svg';
-// import ksm_logo from './polkadot-new-dot-logo.svg';
+import dot_logo from './kusama-ksm-logo.svg';
+import ksm_logo from './polkadot-new-dot-logo.svg';
 
 import styles from './styles.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -19,6 +23,7 @@ function App() {
   const [selectedAccount, setSelectedAccount] =
     useState<null | InjectedAccountWithMeta>(null);
   const [showDropDown, setShowDropDown] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<any>();
 
   useEffect(() => {
     loadWeb3Accounts();
@@ -36,11 +41,24 @@ function App() {
     if (allAccounts && allAccounts.length) setAccounts(allAccounts);
   };
 
+  const loadBalance = async (address: string) => {
+    const balance = await getBalance(address);
+    console.log('balance: ', balance);
+    setWalletBalance(balance);
+  };
+
   useEffect(() => {
     console.log('accounts', accounts);
     console.log('selectedAccount', selectedAccount);
     if (selectedAccount == null && accounts && accounts.length)
       setSelectedAccount(accounts[0]);
+    if (selectedAccount) {
+      loadBalance(selectedAccount?.address);
+      console.log(
+        'getTransactions: ',
+        getTransactions(selectedAccount?.address)
+      );
+    }
   }, [accounts, selectedAccount]);
 
   const _onChangePrefix = (account: InjectedAccountWithMeta) => {
@@ -50,6 +68,20 @@ function App() {
 
   const getShortAddress = (address: string) =>
     address.substring(0, 6) + '...' + address.substring(address.length - 5);
+
+  const getWalletLogo = (symbol: string) => {
+    if (symbol === 'ICP') return icp_logo;
+    if (symbol === 'DOT') return dot_logo;
+    if (symbol === 'KSM') return ksm_logo;
+    return icp_logo;
+  };
+
+  const getValueInUSD = (balance: number, symbol: string) => {
+    if (symbol === 'ICP') return balance * 80;
+    if (symbol === 'DOT') return balance * 20;
+    if (symbol === 'KSM') return balance * 120;
+    return icp_logo;
+  };
 
   return (
     <div className="App">
@@ -94,58 +126,73 @@ function App() {
           </div>
         </div>
 
-        <div className="wallet-dv">
-          <img className="wallet-token-icon" src={icp_logo} />
-          <div className="wallet-balance">54 ICP</div>
-          <div className="wallet-balance-usd">$32,233</div>
-          <div className="wallet-actions-div">
-            <div className="tokenActionView receiveTokenAction">
-              <FontAwesomeIcon
-                className="tokenActionButton"
-                color="#fff"
-                icon={faArrowDown}
-                size="2x"
-              />
-
-              <div className="tokenActionLabel">Receive</div>
+        {walletBalance && (
+          <div className="wallet-dv">
+            <img
+              className="wallet-token-icon"
+              src={getWalletLogo(walletBalance?.balances[0]?.currency?.symbol)}
+            />
+            <div className="wallet-walletBalance">
+              {walletBalance?.balances[0]?.value +
+                ' ' +
+                walletBalance?.balances[0]?.currency?.symbol}
             </div>
-
-            <div className="tokenActionView sendTokenAction">
-              <FontAwesomeIcon
-                className="tokenActionButton"
-                color="#fff"
-                icon={faArrowUp}
-                size="2x"
-              />
-
-              <div className="tokenActionLabel">Send</div>
+            <div className="wallet-walletBalance-usd">
+              {'$' +
+                getValueInUSD(
+                  walletBalance?.balances[0]?.value,
+                  walletBalance?.balances[0]?.currency?.symbol
+                )}
             </div>
-          </div>
+            <div className="wallet-actions-div">
+              <div className="tokenActionView receiveTokenAction">
+                <FontAwesomeIcon
+                  className="tokenActionButton"
+                  color="#fff"
+                  icon={faArrowDown}
+                  size="2x"
+                />
 
-          <div className="assetsAndActivityDiv">
-            <div className="tabsView">
-              <div
-                className={
-                  'tabView ' +
-                  (selectedTab === 'Assets' ? 'selectedTabView' : '')
-                }
-                onClick={() => setSelectedTab('Assets')}
-              >
-                Assets
+                <div className="tokenActionLabel">Receive</div>
               </div>
-              <div
-                className={
-                  'tabView ' +
-                  (selectedTab === 'Transactions' ? 'selectedTabView' : '')
-                }
-                onClick={() => setSelectedTab('Transactions')}
-              >
-                Transactions
+
+              <div className="tokenActionView sendTokenAction">
+                <FontAwesomeIcon
+                  className="tokenActionButton"
+                  color="#fff"
+                  icon={faArrowUp}
+                  size="2x"
+                />
+
+                <div className="tokenActionLabel">Send</div>
               </div>
             </div>
-            <div className="transactions-div"></div>
+
+            <div className="assetsAndActivityDiv">
+              <div className="tabsView">
+                <div
+                  className={
+                    'tabView ' +
+                    (selectedTab === 'Assets' ? 'selectedTabView' : '')
+                  }
+                  onClick={() => setSelectedTab('Assets')}
+                >
+                  Assets
+                </div>
+                <div
+                  className={
+                    'tabView ' +
+                    (selectedTab === 'Transactions' ? 'selectedTabView' : '')
+                  }
+                  onClick={() => setSelectedTab('Transactions')}
+                >
+                  Transactions
+                </div>
+              </div>
+              <div className="transactions-div"></div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
