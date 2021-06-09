@@ -24,6 +24,7 @@ function App() {
     useState<null | InjectedAccountWithMeta>(null);
   const [showDropDown, setShowDropDown] = useState(false);
   const [walletBalance, setWalletBalance] = useState<any>();
+  const [walletTransactions, setWalletTransactions] = useState<any>();
 
   useEffect(() => {
     loadWeb3Accounts();
@@ -47,6 +48,12 @@ function App() {
     setWalletBalance(balance);
   };
 
+  const loadTransactions = async (address: string) => {
+    const transactions = await getTransactions(address);
+    console.log('transactions: ', transactions);
+    setWalletTransactions(transactions);
+  };
+
   useEffect(() => {
     console.log('accounts', accounts);
     console.log('selectedAccount', selectedAccount);
@@ -54,10 +61,7 @@ function App() {
       setSelectedAccount(accounts[0]);
     if (selectedAccount) {
       loadBalance(selectedAccount?.address);
-      console.log(
-        'getTransactions: ',
-        getTransactions(selectedAccount?.address)
-      );
+      loadTransactions(selectedAccount?.address);
     }
   }, [accounts, selectedAccount]);
 
