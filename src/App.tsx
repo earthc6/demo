@@ -44,19 +44,15 @@ function App() {
 
   const loadBalance = async (address: string) => {
     const balance = await getBalance(address);
-    console.log('balance: ', balance);
     setWalletBalance(balance);
   };
 
   const loadTransactions = async (address: string) => {
     const transactions = await getTransactions(address);
-    console.log('transactions: ', transactions);
     setWalletTransactions(transactions);
   };
 
   useEffect(() => {
-    console.log('accounts', accounts);
-    console.log('selectedAccount', selectedAccount);
     if (selectedAccount == null && accounts && accounts.length)
       setSelectedAccount(accounts[0]);
     if (selectedAccount) {
@@ -136,40 +132,17 @@ function App() {
               className="wallet-token-icon"
               src={getWalletLogo(walletBalance?.balances[0]?.currency?.symbol)}
             />
-            <div className="wallet-walletBalance">
+            <div className="wallet-balance">
               {walletBalance?.balances[0]?.value +
                 ' ' +
                 walletBalance?.balances[0]?.currency?.symbol}
             </div>
-            <div className="wallet-walletBalance-usd">
+            <div className="wallet-balance-usd">
               {'$' +
                 getValueInUSD(
                   walletBalance?.balances[0]?.value,
                   walletBalance?.balances[0]?.currency?.symbol
                 )}
-            </div>
-            <div className="wallet-actions-div">
-              <div className="tokenActionView receiveTokenAction">
-                <FontAwesomeIcon
-                  className="tokenActionButton"
-                  color="#fff"
-                  icon={faArrowDown}
-                  size="2x"
-                />
-
-                <div className="tokenActionLabel">Receive</div>
-              </div>
-
-              <div className="tokenActionView sendTokenAction">
-                <FontAwesomeIcon
-                  className="tokenActionButton"
-                  color="#fff"
-                  icon={faArrowUp}
-                  size="2x"
-                />
-
-                <div className="tokenActionLabel">Send</div>
-              </div>
             </div>
 
             <div className="assetsAndActivityDiv">
@@ -177,23 +150,30 @@ function App() {
                 <div
                   className={
                     'tabView ' +
-                    (selectedTab === 'Assets' ? 'selectedTabView' : '')
-                  }
-                  onClick={() => setSelectedTab('Assets')}
-                >
-                  Assets
-                </div>
-                <div
-                  className={
-                    'tabView ' +
                     (selectedTab === 'Transactions' ? 'selectedTabView' : '')
                   }
                   onClick={() => setSelectedTab('Transactions')}
                 >
-                  Transactions
+                  Transactions (Block Hash)
                 </div>
               </div>
-              <div className="transactions-div"></div>
+              <div className="transactions-div">
+                {walletTransactions &&
+                  walletTransactions?.transactions &&
+                  walletTransactions?.transactions?.map(
+                    (transaction: { block_identifier: { hash: string } }) => (
+                      <div className="transaction-item-div">
+                        {getShortAddress(transaction.block_identifier.hash)}
+                      </div>
+                    )
+                  )}
+                {walletTransactions &&
+                  !walletTransactions?.transactions?.length && (
+                    <div className="transaction-item-div">
+                      No Transactions History
+                    </div>
+                  )}
+              </div>
             </div>
           </div>
         )}
