@@ -12,10 +12,6 @@ import icp_logo from './icp-logo.png';
 import dot_logo from './kusama-ksm-logo.svg';
 import ksm_logo from './polkadot-new-dot-logo.svg';
 
-import styles from './styles.module.scss';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
-
 function App() {
   const [selectedTab, setSelectedTab] = useState('Assets');
   const [accounts, setAccounts] =
@@ -95,7 +91,7 @@ function App() {
 
       <div className="App-Body">
         <div className="App-header">
-          <div className="App-header-title">Sample DApp</div>
+          <div className="App-header-title">Demo DApp</div>
           <div className="selectedAccountHeader">
             <div
               className="selectedAccount"
