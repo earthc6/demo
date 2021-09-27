@@ -1,5 +1,5 @@
 import styles from "./App.module.scss";
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 
 declare global {
@@ -24,16 +24,26 @@ const getEarth = () => {
 
 function App() {
 
+  const [selectedAccountText, setSelectedAccountText] = useState<string>();
   useEffect(() => {
 
     const handleEarthEnable = async () => {
-      getEarth().then(async (earth) => {
+      getEarth().then(async (earth: any) => {
         console.log('gotEarth', earth)
         // @ts-ignore: Object is of type 'unknown'.
         let hello = await earth?.isConnected();
         console.log('gotEarth', hello)
         // @ts-ignore: Object is of type 'unknown'.
-        console.log(await earth?.enable())
+
+        try {
+          let enable = await earth?.enable();
+          setSelectedAccountText(enable);
+          console.log(enable)
+
+        } catch (error) {
+          console.log(error)
+        }
+
       });
 
       console.log(window.earth);
@@ -58,7 +68,7 @@ function App() {
       <div className={styles.cardcont}>
 
 
-        Demo application
+        Dapp injected Address - {selectedAccountText}
 
 
 
