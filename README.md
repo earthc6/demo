@@ -44,7 +44,9 @@ const handleEarthEnable = () => {
 ```js
 
 // After connected to Earth Wallet 🌍
-
+// window.earth.signMessage can be single object with canisterId, method and args or Array of multiple objects with canisterId, method and args.
+// In case of array, response will be an array of respones in the same order as requests
+// Incase of Error with any of query, response will be of { type: 'error', message: message }
  const callSignMessage = async () => {
     try {
       let response = await window.earth.signMessage({
@@ -65,7 +67,9 @@ const handleEarthEnable = () => {
         method: 'say',
         args: 'hello'
       }, 
-      { canisterId: 'tde7l-3qaaa-aaaah-qansa-cai', method: 'availableCycles' }]);
+      { canisterId: 'tde7l-3qaaa-aaaah-qansa-cai', 
+        method: 'availableCycles'
+       }]);
       console.log(response)
      } catch (error) {
 
