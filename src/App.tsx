@@ -26,36 +26,18 @@ const getEarth = () => {
 
 function App() {
 
-  const [selectedAccountText, setSelectedAccountText] = useState<string>();
+  const [selectedAccountText, setSelectedAccountText] = useState<string | null>(null);
   const [response, setSelectedResponse] = useState<keyable>({});
 
-  useEffect(() => {
 
-    const handleEarthEnable = async () => {
-      getEarth().then(async (earth: any) => {
-        console.log('gotEarth', earth)
-        // @ts-ignore: Object is of type 'unknown'.
-        let hello = await earth?.isConnected();
-        console.log('gotEarth', hello)
-        // @ts-ignore: Object is of type 'unknown'.
-
-        try {
-          let enable = await earth?.enable();
-          setSelectedAccountText(enable);
-          console.log(enable)
-
-        } catch (error) {
-          console.log(error)
-        }
-
-      });
+  const callEarthConnect = async () => {
+    const account = await window.earth.enable();
+    setSelectedAccountText(account);
+  };
 
 
-    };
 
 
-    handleEarthEnable();
-  }, []);
 
   const callSignMessage = async () => {
     try {
@@ -90,7 +72,10 @@ function App() {
   return (
     <div className={styles.app}>
       <div className={styles.cardcont}>
-        Dapp connected Address - {selectedAccountText}
+        {selectedAccountText
+          ? <div> Dapp connected Address - {selectedAccountText}</div>
+          : <button onClick={callEarthConnect}>🌎 Earth Connect</button>
+        }
       </div>
       {selectedAccountText && <div>
         <div
@@ -105,12 +90,13 @@ function App() {
           <code className={styles.code}>{callSignMessageBatch.toString()}</code>
           <button onClick={callSignMessageBatch}>Call Batch Sign Message</button>
         </div>
+        <div
+          style={{ background: '#e7ffe7' }}
+          className={styles.cardcont}>
+          Response - {stringifyWithBigInt(response)}
+        </div>
       </div>}
-      <div
-        style={{ background: '#e7ffe7' }}
-        className={styles.cardcont}>
-        Response - {stringifyWithBigInt(response)}
-      </div>
+
     </div>
 
   );
