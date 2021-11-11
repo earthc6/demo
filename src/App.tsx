@@ -26,13 +26,24 @@ const getEarth = () => {
 
 function App() {
 
-  const [selectedAccountText, setSelectedAccountText] = useState<string | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+  const [selectedAddressMeta, setSelectedAddressMeta] = useState<keyable>({});
+
   const [response, setSelectedResponse] = useState<keyable>({});
 
 
   const callEarthConnect = async () => {
-    const account = await window.earth.enable();
-    setSelectedAccountText(account);
+    try {
+      const account = await window.earth.enable();
+      setSelectedAddress(account);
+      const meta = await window.earth.getAddressMeta()
+      setSelectedAddressMeta(meta);
+      //      console.log(await window.earth.getAddressMeta())
+
+    } catch (error) {
+      console.log(error);
+    }
+
   };
 
 
@@ -48,7 +59,7 @@ function App() {
       });
       setSelectedResponse(response)
     } catch (error) {
-
+      console.log(error);
     }
   }
   const callSignMessageBatch = async () => {
@@ -60,7 +71,7 @@ function App() {
       }, { canisterId: 'tde7l-3qaaa-aaaah-qansa-cai', method: 'availableCycles' }]);
       setSelectedResponse(response)
     } catch (error) {
-
+      console.log(error);
     }
   }
 
@@ -72,12 +83,23 @@ function App() {
   return (
     <div className={styles.app}>
       <div className={styles.cardcont}>
-        {selectedAccountText
-          ? <div> Dapp connected Address - {selectedAccountText}</div>
+        {selectedAddress
+          ? <div>
+            <div className={styles.datacol}>
+              <div className={styles.datakey}>Connected Address</div>
+              <div>🌎 {selectedAddress}</div>
+            </div>
+            {selectedAddressMeta && <div>
+              <div>{Object.keys(selectedAddressMeta).map((key, index) => <div key={index} className={styles.datacol}>
+                <div className={styles.datakey}>{key}</div>
+                <div>{selectedAddressMeta[key]}</div>
+              </div>)}</div>
+            </div>}
+          </div>
           : <button onClick={callEarthConnect}>🌎 Earth Connect</button>
         }
       </div>
-      {selectedAccountText && <div>
+      {selectedAddress && <div>
         <div
           className={styles.cardcont}
         >
